@@ -10,7 +10,7 @@ import SwiftUI
 struct ContentView: View {
     
     @State private var questionBank = [[Int]]()
-    @State private var currentQuestions = [[Int]]()
+    @State private var currentQuestions = [String:Int]()
     
     @State private var maxMultiples = 2
     @State private var numQuestions = 5
@@ -42,6 +42,15 @@ struct ContentView: View {
     }
         
     func startGame() {
+        var numQuestionSelected = 0
+        while numQuestionSelected <= numQuestions {
+            let randomMultipleA = Int.random(in: 2..<maxMultiples + 1)
+            let randomMultipleB = Int.random(in: 1..<13)
+            let randomMultipleTotal = questionBank[randomMultipleA - 2][randomMultipleB - 1]
+            currentQuestions["\(randomMultipleA) * \(randomMultipleB)"] = randomMultipleTotal
+            numQuestionSelected += 1
+        }
+        print(currentQuestions)
         start.toggle()
     }
     
