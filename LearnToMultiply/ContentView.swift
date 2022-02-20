@@ -14,6 +14,23 @@ struct ContentView: View {
         let answer: Int
     }
     
+    let images = [
+        "bear",
+        "buffalo",
+        "chick",
+        "chicken",
+        "cow",
+        "crocodile",
+        "dog",
+        "duck",
+        "elephant",
+        "frog",
+        "giraffe",
+        "goat",
+        "gorilla",
+        "hippo",
+    ]
+    
     @State private var questionBank = [[Int]]()
     @State private var currentQuestions = [Question]()
     
@@ -50,8 +67,41 @@ struct ContentView: View {
                     
                 } else {
                     Form {
-                        Stepper("Max \(maxMultiples)  Multiples", value: $maxMultiples, in: 2...12)
-                        Stepper("\(numQuestions) Questions", value: $numQuestions, in: 5...20, step: 5)
+                        Section {
+                            ForEach(2 ..< 13, id: \.self) { i in
+                                HStack {
+                                    Button {
+                                        maxMultiples = i
+                                    } label : {
+                                        HStack {
+                                            ForEach(0 ..< i, id: \.self) { _ in
+                                                Image(images[i])
+                                                    .resizable()
+                                                    .aspectRatio(contentMode: .fit)
+                                                    .shadow(
+                                                        color: maxMultiples == i ? .blue : .clear,
+                                                        radius: 5
+                                                    )
+                                            }
+                                        }
+                                        .frame(maxHeight: 50)
+                                    }
+                                }
+                            }
+                        } header: {
+                            Text("How many multiples?")
+                        }
+                        
+                        Section {
+                            Picker("Number of questions", selection: $numQuestions) {
+                                ForEach(Array(stride(from: 5, through: 20, by: 5)), id: \.self) {
+                                    Text("\($0)")
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                        } header: {
+                            Text("How many questions?")
+                        }
                     }
                 }
             }
