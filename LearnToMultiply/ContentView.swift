@@ -19,19 +19,31 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
-        if start {
-            Text("start")
-        } else {
-            Text("selection")
-        }
-        
+            VStack {
+                if start {
+                    Text("start")
+                } else {
+                    Form {
+                        Stepper("Max \(maxMultiples)  Multiples", value: $maxMultiples, in: 2...12)
+                        Stepper("\(numQuestions) Questions", value: $numQuestions, in: 5...20, step: 5)
+                    }
+                }
+            }
+            .navigationTitle("Learn Multiplications")
+            .toolbar {
+                Button("Start") {
+                    startGame()
+                }
+            }
             
         }
         .onAppear(perform: loadQuestions)
-        .navigationTitle("Learn Multiplications")
+        
     }
         
-         
+    func startGame() {
+        start.toggle()
+    }
     
     func loadQuestions() {
         for i in 2..<13 {
