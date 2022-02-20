@@ -24,8 +24,7 @@ struct ContentView: View {
     
     @State private var questionsAnswered = 0
     @State private var correctAnswers = 0
-    @State private var answer = 0
-    @FocusState private var answerIsFocused: Bool
+    @State private var answer: Int?
     @State private var gameOverMessage = ""
     
     var body: some View {
@@ -39,7 +38,9 @@ struct ContentView: View {
                         Section {
                             TextField("Answer", value:$answer, format:.number)
                                 .keyboardType(.numberPad)
-                                .focused($answerIsFocused)
+                                .onSubmit {
+                                    answerSelected()
+                                }
                             Button("Submit") {
                                 answerSelected()
                             }
@@ -59,14 +60,7 @@ struct ContentView: View {
                 Button("Start") {
                     startGame()
                 }
-            }
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("Done") {
-                        answerIsFocused = false
-                    }
-                }
+                .disabled(start)
             }
             .alert("Game Over", isPresented: $gameOver) {
                 Button("Reset", action: reset)
@@ -85,6 +79,7 @@ struct ContentView: View {
             correctAnswers += 1
         }
         questionsAnswered += 1
+        answer = nil
         if questionsAnswered == numQuestions {
             gameOverMessage = "You got \(correctAnswers) out of \(questionsAnswered)"
             gameOver.toggle()
