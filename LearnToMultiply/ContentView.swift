@@ -38,31 +38,34 @@ struct ContentView: View {
     @State private var numQuestions = 5
     @State private var start = false
     @State private var gameOver = false
+    @State private var incorrectAnswer = false
     
     @State private var questionsAnswered = 0
     @State private var correctAnswers = 0
     @State private var answer: Int?
     @State private var gameOverMessage = ""
+    @State private var incorrectAnswerMessage = ""
     
     var body: some View {
         NavigationView {
             VStack {
                 if start {
-                    Form {
-                        Section {
-                            Text("\(currentQuestions[questionsAnswered].questionString)")
-                        }
-                        Section {
-                            TextField("Answer", value:$answer, format:.number)
-                                .keyboardType(.numberPad)
-                                .onSubmit {
-                                    answerSelected()
-                                }
-                            Button("Submit") {
-                                answerSelected()
+                    VStack {
+                        Form {
+                            Section {
+                                Text("\(currentQuestions[questionsAnswered].questionString)")
+                                TextField("Answer", value:$answer, format:.number)
+                                    .keyboardType(.numberPad)
+                                    .onSubmit {
+                                        answerSelected()
+                                    }
+                            } header: {
+                                Text("Question")
                             }
                         }
-                        
+                        Button("Submit") {
+                            answerSelected()
+                        }
                     }
                     
                 } else {
@@ -112,12 +115,22 @@ struct ContentView: View {
                 }
                 .disabled(start)
             }
+            .alert(isPresented: $incorrectAnswer) {
+                Alert(
+                    title: Text(gameOver ? "Game Over" : "Incorrect Answer"),
+                    message: Text(gameOver ? gameOverMessage + "\n" + incorrectAnswerMessage: incorrectAnswerMessage),
+                    dismissButton: .default(Text(gameOver ? "Reset" : "Got it!" )) {
+                        if gameOver {
+                            reset()
+                        }
+                    }
+                )
+            }
             .alert("Game Over", isPresented: $gameOver) {
                 Button("Reset", action: reset)
             } message: {
                 Text(gameOverMessage)
             }
-            
         }
         .onAppear(perform: loadQuestions)
         
@@ -127,19 +140,25 @@ struct ContentView: View {
     func answerSelected() {
         if answer == currentQuestions[questionsAnswered].answer {
             correctAnswers += 1
+        } else {
+            incorrectAnswerMessage = "\(currentQuestions[questionsAnswered].questionString) is \(currentQuestions[questionsAnswered].answer)"
+            incorrectAnswer.toggle()
         }
         questionsAnswered += 1
         answer = nil
+        checkIsGameOver()
+    }
+    
+    func checkIsGameOver() {
         if questionsAnswered == numQuestions {
             gameOverMessage = "You got \(correctAnswers) out of \(questionsAnswered)"
             gameOver.toggle()
         }
-    
     }
     
     func startGame() {
         var numQuestionSelected = 0
-        while numQuestionSelected <= numQuestions {
+        while numQuestionSelected <= numQuestions + 1 {
             let randomMultipleA = Int.random(in: 2..<maxMultiples + 1)
             let randomMultipleB = Int.random(in: 1..<13)
             let randomMultipleTotal = questionBank[randomMultipleA - 2][randomMultipleB - 1]
@@ -169,6 +188,7 @@ struct ContentView: View {
         currentQuestions = []
         questionsAnswered = 0
         correctAnswers = 0
+        gameOver = false
         start.toggle()
     }
 }
