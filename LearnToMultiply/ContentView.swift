@@ -121,6 +121,7 @@ struct ContentView: View {
     }
     
     func reset() {
+        currentQuestions = []
         questionsAnswered = 0
         correctAnswers = 0
         start.toggle()
